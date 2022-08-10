@@ -10,28 +10,26 @@ The enterprise-class features and a 100% software-based focus make Proxmox VE th
 ### Increase a VM Disk Size
 > After you increase the size of the disk in Proxmox, you need to resize the disk in the guest VM.
 > - LVM
->   - `pvresize /dev/vda2`
+>   - `pvresize /dev/vda{#}`
 >   - `lvextend /dev/mapper/root -l+100%FREE`
 >   - `resize2fs /dev/mapper/root` (ext2/3/4) -OR- `xfs_growfs /dev/mapper/root` (XFS)
 >
 > - Non-LVM
 >   - `lsblk`
 >   - If necessary (`sudo apt -y install cloud-guest-utils gdisk`)
->   - `growpart /dev/vda 2`
+>   - `growpart /dev/vda {#}`
 >   - `lsblk` (check)
->   - `resize2fs /dev/vda2`
+>   - `resize2fs /dev/vda{#}`
 
 ### Cluster Management
-- Change quorate votes
-  - `pvecm expected #`
-
-- Cluster Status
-  - `pvecm status`
-
-Delete Node from Cluster:
-List nodes from another node
-pvecm nodes
-Shutdown node to be removed from cluster
-Delete Node from same node as first step
-pvecm delnode {NODE NAME}
-Do NOT power on the deleted node while connected to network
+> - Change quorate votes
+> - `pvecm expected {#}`
+>
+> - Cluster Status
+>  - `pvecm status`
+>
+> - Delete Node from Cluster
+>  - List nodes from another node `pvecm nodes`
+>  - Shutdown node to be removed from cluster
+>  - Delete Node from same node as first step - `pvecm delnode {NODE NAME}`
+> **Do NOT power on the deleted node while connected to network**
