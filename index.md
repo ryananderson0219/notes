@@ -23,13 +23,29 @@ The enterprise-class features and a 100% software-based focus make Proxmox VE th
 
 ### Cluster Management
 > - Change quorate votes
-> - `pvecm expected {#}`
+>   - `pvecm expected {#}`
 >
 > - Cluster Status
->  - `pvecm status`
+>   - `pvecm status`
 >
 > - Delete Node from Cluster
->  - List nodes from another node `pvecm nodes`
->  - Shutdown node to be removed from cluster
->  - Delete Node from same node as first step - `pvecm delnode {NODE NAME}`
-> **Do NOT power on the deleted node while connected to network**
+>   - List nodes from another node `pvecm nodes`
+>   - Shutdown node to be removed from cluster
+>   - Delete Node from same node as first step - `pvecm delnode {NODE NAME}`
+>   - **Do NOT power on the deleted node while connected to network**
+
+### Remove node from cluster without reimaging (NOT recommended or supported)
+
+> - From node to be removed
+>   - `systemctl stop pve-cluster`
+>   - `systemctl stop corosync`
+>   - `pmxcfs -l`
+>   - `rm /etc/pve/corosync.conf`
+>   - `rm -r /etc/corosync/*`
+>   - `killall pmxcfs`
+>   - `systemctl start pve-cluster`
+> - From all other nodes in the cluster
+>   - `pvecm delnode {NODE NAME}`
+>   - `rm -r /etc/pve/nodes/{NODE NAME}`
+> - From the removed node
+>   - `rm /var/lib/corosync/*`
