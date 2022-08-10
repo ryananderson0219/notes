@@ -1,37 +1,51 @@
-## Welcome to GitHub Pages
+# [![Proxmox Virtual Environment](https://proxmox.com/images/proxmox/Proxmox_logo_standard_hex_400px.png)](https://proxmox.com/en/proxmox-ve)
 
-You can use the [editor on GitHub](https://github.com/ryananderson0219/notes/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
+## Introduction
+Proxmox VE is a complete, open-source server management platform for enterprise virtualization. It tightly integrates the KVM hypervisor and Linux Containers (LXC), software-defined storage and networking functionality, on a single platform. With the integrated web-based user interface you can manage VMs and containers, high availability for clusters, or the integrated disaster recovery tools with ease.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The enterprise-class features and a 100% software-based focus make Proxmox VE the perfect choice to virtualize your IT infrastructure, optimize existing resources, and increase efficiencies with minimal expense. You can easily virtualize even the most demanding of Linux and Windows application workloads, and dynamically scale computing and storage as your needs grow, ensuring that your data center adjusts for future growth.
 
-### Markdown
+## Knowledgebase
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Increase a VM Disk Size
+> After you increase the size of the disk in Proxmox, you need to resize the disk in the guest VM.
+> - LVM
+>   - `pvresize /dev/vda{#}`
+>   - `lvextend /dev/mapper/root -l+100%FREE`
+>   - `resize2fs /dev/mapper/root` (ext2/3/4) -OR- `xfs_growfs /dev/mapper/root` (XFS)
+>
+> - Non-LVM
+>   - `lsblk`
+>   - If necessary (`sudo apt -y install cloud-guest-utils gdisk`)
+>   - `growpart /dev/vda {#}`
+>   - `lsblk` (check)
+>   - `resize2fs /dev/vda{#}`
 
-```markdown
-Syntax highlighted code block
+### Cluster Management
+> - Change quorate votes
+>   - `pvecm expected {#}`
+>
+> - Cluster Status
+>   - `pvecm status`
+>
+> - Delete Node from Cluster
+>   - List nodes from another node `pvecm nodes`
+>   - Shutdown node to be removed from cluster
+>   - Delete Node from same node as first step - `pvecm delnode {NODE NAME}`
+>   - **Do NOT power on the deleted node while connected to network**
 
-# Header 1
-## Header 2
-### Header 3
+### Remove node from cluster without reimaging (NOT recommended or supported)
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ryananderson0219/notes/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+> - From node to be removed
+>   - `systemctl stop pve-cluster`
+>   - `systemctl stop corosync`
+>   - `pmxcfs -l`
+>   - `rm /etc/pve/corosync.conf`
+>   - `rm -r /etc/corosync/*`
+>   - `killall pmxcfs`
+>   - `systemctl start pve-cluster`
+> - From all other nodes in the cluster
+>   - `pvecm delnode {NODE NAME}`
+>   - `rm -r /etc/pve/nodes/{NODE NAME}`
+> - From the removed node
+>   - `rm /var/lib/corosync/*`
